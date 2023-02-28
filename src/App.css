@@ -1,38 +1,64 @@
+:root {
+  --spacing: 8px;
+}
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  background-color: black;
   color: white;
+  min-height: calc(100vh - var(--spacing)*4);
+  padding: calc(var(--spacing)*2);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  width: calc(100% - var(--spacing)*4);
 }
 
-.App-link {
-  color: #61dafb;
+.stopwatch {
+  width: 100%;
+  /* max-width: 300px; */
+  /* border: solid white 2px; */
+  padding: var(--spacing);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: space-around;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.stopwatch .buttons {
+  display: flex;
+
+  justify-content: space-around;
+  width: 100%;
+}
+
+.stopwatch .buttons button {
+  padding: 20px;
+  border-radius: 100%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+}
+
+.stopwatch .buttons button img {
+  width: 100%;
+  object-fit: contain;
+}
+
+.stopwatch .buttons button.stop img {
+  width: 190%;
+}
+
+.stopwatch .buttons button.start img {
+  width: 100%;
+  margin-left: var(--spacing);
+}
+
+.stopwatch .buttons button.reset img {
+  width: 145%;
+  margin-bottom: 5px;
+}
+.stopwatch .numbers {
+  font-size: 20.5vw;
 }
