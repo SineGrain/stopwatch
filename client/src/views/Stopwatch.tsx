@@ -3,8 +3,25 @@ import { useEffect, useState } from "react";
 import startButton from '../imgs/play-button.png'
 import pauseButton from '../imgs/stop-button.png'
 import resetButton from '../imgs/arrow-circle.png'
+import { useSocket } from "../hooks/useSocket";
+import { DECK } from "../../../shared/constants/deck";
 
 export const Stopwatch = () => {
+
+    const { selectedCard, socket } = useSocket()
+    const [fromTop, setFromTop] = useState(true)
+
+    const selectedCardIndex = React.useRef(18)
+
+    useEffect(() => {
+        selectedCardIndex.current = DECK.findIndex(itm => itm === selectedCard) + 1
+        if (selectedCardIndex.current < 18) {
+            selectedCardIndex.current = 52 - selectedCardIndex.current
+            setFromTop(false)
+
+        }
+    }, [selectedCard])
+
     const [time, setTime] = useState(0);
     const [running, setRunning] = useState(false);
     // const running = React.useRef(false)
@@ -22,10 +39,10 @@ export const Stopwatch = () => {
             + parseInt(seconds[0]) + parseInt(seconds[1])
             + parseInt(decisec[0]) + parseInt(decisec[1])
         console.log('summ', summ)
-        return summ === 18
+        return summ === selectedCardIndex.current
     }
 
-    const msTo18 = () => {
+    const msToCardIndex = () => {
         const hours = ("0" + Math.floor((time / 600000) % 60)).slice(-2)
         const minutes = ("0" + Math.floor((time / 60000) % 60)).slice(-2)
         const seconds = ("0" + Math.floor((time / 1000) % 60)).slice(-2)
@@ -36,12 +53,12 @@ export const Stopwatch = () => {
             + parseInt(seconds[0]) + parseInt(seconds[1])
         // + parseInt(decisec[0]) + parseInt(decisec[1]) 
 
-        console.log(`${minutes} : ${seconds} : ${decisec}`)
-        console.log('summ', summ)
-        console.log('18 - summ', 18 - summ)
+        // console.log(`${minutes} : ${seconds} : ${decisec}`)
+        // console.log('summ', summ)
+        // console.log('18 - summ', 18 - summ)
 
-        const diff = 18 - summ
-        console.log('diff', diff)
+        const diff = selectedCardIndex.current - summ
+        // console.log('diff', diff)
         // console.log('Out msto18',
         // [ 
         //     Math.floor(Math.abs(diff)*0.5) * Math.sign(diff), 
@@ -104,7 +121,7 @@ export const Stopwatch = () => {
     const decisec = ("0" + ((time / 10) % 100)).slice(-2)
 
 
-    let outCalc = msTo18()
+    let outCalc = msToCardIndex()
     // const msDec = parseInt(decisec[0]) + outCalc[0] 
     // const msUnit = parseInt(decisec[1]) + outCalc[1] 
 
@@ -119,9 +136,9 @@ export const Stopwatch = () => {
             </div>
             <div className="buttons">
                 {!running ? (
-                        <button className="start" onClick={() => setRunning(true)}>
-                            <img src={startButton} />
-                        </button>) :
+                    <button className="start" onClick={() => setRunning(true)}>
+                        <img src={startButton} />
+                    </button>) :
                     (
                         <button className="stop" onClick={() => setRunning(false)}>
                             <img src={pauseButton} />
