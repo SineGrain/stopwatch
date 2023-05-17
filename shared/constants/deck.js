@@ -1,4 +1,4 @@
-export const DECK = [
+module.exports = [
     "ca",
     "c2",
     "c3",
@@ -8,6 +8,7 @@ export const DECK = [
     "c7",
     "c8",
     "c9",
+    "c1",
     "cj",
     "cq",
     "ck",
@@ -21,6 +22,7 @@ export const DECK = [
     "q7",
     "q8",
     "q9",
+    "q1",
     "qj",
     "qq",
     "qk",
@@ -34,6 +36,7 @@ export const DECK = [
     "f7",
     "f8",
     "f9",
+    "f1",
     "fj",
     "fq",
     "fk",
@@ -47,9 +50,8 @@ export const DECK = [
     "p7",
     "p8",
     "p9",
+    "p1",
     "pj",
     "pq",
     "pk",
-] as const
-
-export type DeckType = typeof DECK[number]
+]

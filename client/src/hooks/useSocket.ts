@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { socket } from "../utils/socket";
-import { DeckType } from "../../../shared/constants/deck";
+import { DeckType } from "../constants/deck";
+
 
 
 export const useSocket = () => {
@@ -17,6 +18,7 @@ export const useSocket = () => {
         }
 
         function onCardEvent(value: DeckType) {
+            console.log('Received card', value)
             setSelectedCard(value);
         }
 

@@ -1,96 +1,31 @@
 import * as React from "react"
 import { useEffect, useState } from "react";
 import startButton from '../imgs/play-button.png'
-import pauseButton from '../imgs/stop-button.png'
+import stopButton from '../imgs/stop-button.png'
+import pauseButton from '../imgs/pause.png'
 import resetButton from '../imgs/arrow-circle.png'
-import { useSocket } from "../hooks/useSocket";
-import { DECK } from "../../../shared/constants/deck";
+import { useStopWatchMagic } from "../hooks/useStopwatchMagic";
 
 export const Stopwatch = () => {
 
-    const { selectedCard, socket } = useSocket()
-    const [fromTop, setFromTop] = useState(true)
 
-    const selectedCardIndex = React.useRef(18)
 
-    useEffect(() => {
-        selectedCardIndex.current = DECK.findIndex(itm => itm === selectedCard) + 1
-        if (selectedCardIndex.current < 18) {
-            selectedCardIndex.current = 52 - selectedCardIndex.current
-            setFromTop(false)
-
-        }
-    }, [selectedCard])
 
     const [time, setTime] = useState(0);
     const [running, setRunning] = useState(false);
-    // const running = React.useRef(false)
 
-    // const setRunning = (val: boolean) => {
-    //     running.current = val
-    // }
-    const checkTime = (): boolean => {
-        const hours = ("0" + Math.floor((time / 600000) % 60)).slice(-2)
-        const minutes = ("0" + Math.floor((time / 60000) % 60)).slice(-2)
-        const seconds = ("0" + Math.floor((time / 1000) % 60)).slice(-2)
-        const decisec = ("0" + ((time / 10) % 100)).slice(-2)
 
-        const summ = parseInt(minutes[0]) + parseInt(minutes[1])
-            + parseInt(seconds[0]) + parseInt(seconds[1])
-            + parseInt(decisec[0]) + parseInt(decisec[1])
-        console.log('summ', summ)
-        return summ === selectedCardIndex.current
-    }
-
-    const msToCardIndex = () => {
-        const hours = ("0" + Math.floor((time / 600000) % 60)).slice(-2)
-        const minutes = ("0" + Math.floor((time / 60000) % 60)).slice(-2)
-        const seconds = ("0" + Math.floor((time / 1000) % 60)).slice(-2)
-        const decisec = ("0" + ((time / 10) % 100)).slice(-2)
-
-        const summ =
-            parseInt(minutes[0]) + parseInt(minutes[1])
-            + parseInt(seconds[0]) + parseInt(seconds[1])
-        // + parseInt(decisec[0]) + parseInt(decisec[1]) 
-
-        // console.log(`${minutes} : ${seconds} : ${decisec}`)
-        // console.log('summ', summ)
-        // console.log('18 - summ', 18 - summ)
-
-        const diff = selectedCardIndex.current - summ
-        // console.log('diff', diff)
-        // console.log('Out msto18',
-        // [ 
-        //     Math.floor(Math.abs(diff)*0.5) * Math.sign(diff), 
-        //     Math.ceil(Math.abs(diff)*0.5) * Math.sign(diff)
-        // ])
-
-        let divider = Math.random()
-
-        let output = [
-            Math.floor(Math.abs(diff) * divider) * Math.sign(diff),
-            Math.ceil(Math.abs(diff) * (1 - divider)) * Math.sign(diff)
-        ]
-
-        console.log('output', output)
-        let count = 0
-        while ((output[0] >= 10 || output[1] >= 10) && count < 1000) {
-            count++
-
-            divider = Math.random()
-
-            output = [
-                Math.floor(Math.abs(diff) * divider) * Math.sign(diff),
-                Math.ceil(Math.abs(diff) * (1 - divider)) * Math.sign(diff)
-            ]
-
-            console.log('while output', output, count)
-        }
+    const {
+        checkTime,
+        msToCardIndex,
+        fromTop,
+        selectedCardIndex,
+        twoDigitSum
+    } = useStopWatchMagic({ time, running })
 
 
 
-        return output
-    }
+
 
     useEffect(() => {
         let interval: NodeJS.Timer | null = null;
@@ -141,7 +76,7 @@ export const Stopwatch = () => {
                     </button>) :
                     (
                         <button className="stop" onClick={() => setRunning(false)}>
-                            <img src={pauseButton} />
+                            <img src={twoDigitSum.current ? pauseButton : stopButton} />
                         </button>
                     )}
                 <button className="reset" onClick={() => setTime(0)}>
