@@ -6,7 +6,7 @@ const DECK = require("../shared/constants/deck")
 const dev = require('./dev')
 
 const DEV = false;
-const PORT = DEV ? 4000 : 443
+const PORT = DEV ? 4000 : process.env.PORT
 
 const server = https
   .createServer(
