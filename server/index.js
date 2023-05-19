@@ -10,10 +10,10 @@ const PORT = DEV ? 4000 : 443
 
 const server = https
   .createServer(
-    {
-      key: fs.readFileSync("server.key"),
-      cert: fs.readFileSync("server.cert"),
-    },
+    DEV ? {
+      key: fs.readFileSync("./server.key"),
+      cert: fs.readFileSync("./server.cert"),
+    }: {},
     app
   );
 const { Server } = require("socket.io");
