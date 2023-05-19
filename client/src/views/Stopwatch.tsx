@@ -1,31 +1,39 @@
 import * as React from "react"
 import { useEffect, useState } from "react";
-import startButton from '../imgs/play-button.png'
-import stopButton from '../imgs/stop-button.png'
-import pauseButton from '../imgs/pause.png'
+import startButtonSingleDigits from '../imgs/play-button.png'
+import startButtonDoubleDigits from '../imgs/play-button_double_digits.png'
+import startOnlyMs from '../imgs/play-button_only_ms.png'
+// import stopButton from '../imgs/stop-button.png'
 import resetButton from '../imgs/arrow-circle.png'
-import { useStopWatchMagic } from "../hooks/useStopwatchMagic";
+import { CalculusTypes, useStopWatchMagic } from "../hooks/useStopwatchMagic";
 
 export const Stopwatch = () => {
-
-
-
 
     const [time, setTime] = useState(0);
     const [running, setRunning] = useState(false);
 
+    let startButton = startButtonSingleDigits
 
     const {
-        checkTime,
-        msToCardIndex,
         fromTop,
         selectedCardIndex,
-        twoDigitSum
+        calcType,
+        outMs
     } = useStopWatchMagic({ time, running })
-
-
-
-
+    
+    switch(calcType){
+        case CalculusTypes.SINGLE_DIGITS: {
+            startButton = startButtonSingleDigits
+            break;
+        }
+        case CalculusTypes.DOUBLE_DIGITS: {
+            startButton = startButtonDoubleDigits
+            break
+        }
+        case CalculusTypes.ONLY_MS: {
+            startButton = startOnlyMs
+        }
+    }
 
     useEffect(() => {
         let interval: NodeJS.Timer | null = null;
@@ -37,17 +45,12 @@ export const Stopwatch = () => {
 
         } else {
             if (interval !== null) {
-
-                if (checkTime()) {
-                    clearInterval(interval);
-                }
+                clearInterval(interval);
             }
-
         }
 
         return () => { if (interval) { clearInterval(interval) } };
     }, [running]);
-
 
 
     const hours = ("0" + Math.floor((time / 600000) % 60)).slice(-2)
@@ -56,18 +59,18 @@ export const Stopwatch = () => {
     const decisec = ("0" + ((time / 10) % 100)).slice(-2)
 
 
-    let outCalc = msToCardIndex()
-    // const msDec = parseInt(decisec[0]) + outCalc[0] 
-    // const msUnit = parseInt(decisec[1]) + outCalc[1] 
-
-
     return (
-        <div className="stopwatch">
-            <div className="numbers">
-                {/* <span>{hours}:</span> */}
-                <span>{minutes}:</span>
-                <span>{seconds}:</span>
-                <span>{running || time === 0 ? decisec : `${outCalc[0]}${outCalc[1]}`}</span>
+        <div className={`stopwatch calc_${calcType} from_${fromTop ? 'top': 'bottom'}`}>
+            <div className="numbers__container">
+                <div className={`numbers`}>
+                    {/* <span>{hours}:</span> */}
+                    <span>{minutes}</span>
+                    <span>:</span>
+                    <span>{seconds}</span>
+                    <span>:</span>
+                    <span>{running || time === 0 ? decisec : `${outMs[0]}${outMs[1]}`}</span>
+                    {/* <span>{decisec}</span> */}
+                </div>
             </div>
             <div className="buttons">
                 {!running ? (
@@ -76,13 +79,19 @@ export const Stopwatch = () => {
                     </button>) :
                     (
                         <button className="stop" onClick={() => setRunning(false)}>
-                            <img src={twoDigitSum.current ? pauseButton : stopButton} />
+                            {/* <img src={stopButton} /> */}
+                            <div className="stopButton"></div>
                         </button>
                     )}
                 <button className="reset" onClick={() => setTime(0)}>
                     <img src={resetButton} />
                 </button>
             </div>
+            {/* <div>
+                <div>Calc type: {calcType}</div>
+                <div>selectedCardIndex from top: {selectedCardIndex}</div>
+                <div>fromTop: {fromTop.toString()}</div>
+            </div> */}
         </div>
     );
 };

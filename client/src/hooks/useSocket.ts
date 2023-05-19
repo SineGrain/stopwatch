@@ -6,7 +6,7 @@ import { DeckType } from "../constants/deck";
 
 export const useSocket = () => {
     const [isConnected, setIsConnected] = useState(socket.connected);
-    const [selectedCard, setSelectedCard] = useState<DeckType>();
+    const [selectedCard, setSelectedCard] = useState<DeckType>('q6');
 
     useEffect(() => {
         function onConnect() {

@@ -1,9 +1,18 @@
+var https = require("https");
+var fs = require("fs");
 const express = require('express');
 const app = express();
-const http = require('http');
-const server = http.createServer(app);
+// const http = require('http');
+const server = https
+  .createServer(
+    {
+      key: fs.readFileSync("server.key"),
+      cert: fs.readFileSync("server.cert"),
+    },
+    app
+  );
 const { Server } = require("socket.io");
-
+const { join } = require('path')
 const readline = require('readline');
 const DECK = require("../shared/constants/deck")
 const io = new Server(server, {
@@ -12,13 +21,24 @@ const io = new Server(server, {
     }
 });
 
-// app.get('/', (req, res) => {
-//     res.sendFile(__dirname + '/index.html');
-// });
+app.get(['/', '/control'], (req, res) => {
+    res.sendFile(join(__dirname, '../client/build/index.html'));
+});
+
+app.use('/stopwatch', express.static(join(__dirname, '../client/build')))
 
 io.on('connection', (socket) => {
     console.log('a user connected');
+    socket.on('selectedCard', (item)=> {
+        if (DECK.findIndex(itm => itm === item) > -1) {
+            console.log('selectedCard', item)
+            io.emit('selectedCard', item)
+        }
+    })
+
 });
+
+
 
 server.listen(4000, () => {
     console.log('listening on *:4000');

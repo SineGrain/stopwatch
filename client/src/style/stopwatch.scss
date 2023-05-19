@@ -1,0 +1,30 @@
+
+
+.stopwatch  {
+    .calc {
+        &_single_digits > {
+            .buttons {
+                .start {
+                    background-color: red;
+                }
+            }
+        }
+
+        &_double_digits > {
+            .buttons {
+                > .start {
+                    background-color: blue;
+                }
+            }
+        }
+
+        &_only_ms > {
+            .buttons {
+                .start {
+                    background-color: green;
+                }
+            }
+        }
+    }
+    
+}

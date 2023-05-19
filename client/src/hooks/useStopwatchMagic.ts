@@ -3,11 +3,42 @@ import React from "react"
 import { useSocket } from "./useSocket"
 import { DECK } from "../constants/deck"
 
-enum CalculusTypes {
+export enum CalculusTypes {
     SINGLE_DIGITS = 'single_digits',
     DOUBLE_DIGITS = 'double_digits',
     ONLY_MS = 'only_ms'
 }
+
+/**
+     * this func returns the millisecods to show
+     * @returns 
+     */
+const msForSingleDigits = (diff: number) => {
+
+    let divider = Math.random()
+
+    let output = [
+        Math.floor(Math.abs(diff) * divider) * Math.sign(diff),
+        Math.ceil(Math.abs(diff) * (1 - divider)) * Math.sign(diff)
+    ]
+
+    let count = 0
+
+    while ((output[0] >= 10 || output[1] >= 10) && count < 1000) {
+        count++
+
+        divider = Math.random()
+
+        output = [
+            Math.floor(Math.abs(diff) * divider) * Math.sign(diff),
+            Math.ceil(Math.abs(diff) * (1 - divider)) * Math.sign(diff)
+        ]
+    }
+
+    return `${output[0]}${output[1]}`
+}
+
+const numPad2 = (num: number) => ("0" + num).slice(-2)
 
 const destructTime = (time: number) => {
     const hours = ("0" + Math.floor((time / 600000) % 60)).slice(-2)
@@ -41,173 +72,150 @@ interface StopwatchMagicProps {
     running: boolean
 }
 export const useStopWatchMagic = ({ time, running }: StopwatchMagicProps) => {
-    const [clacType, setCalcType] = useState<CalculusTypes>(CalculusTypes.SINGLE_DIGITS)
+    const [calcType, setCalcType] = useState<CalculusTypes>(CalculusTypes.SINGLE_DIGITS)
     const [fromTop, setFromTop] = useState(true)
     const { selectedCard } = useSocket()
     const [selectedCardIndex, setSelectedCardIndex] = useState(18) //React.useRef(18)
-    const twoDigitSum = useRef(false)
 
-    const [outMs, setOutMs] = useState()
+    const [outMs, setOutMs] = useState<string>('00')
+
+    /**
+     * calcola e setta l'index della carta da quella scelta che arriva dal socket
+     */
     useEffect(() => {
         const cardIndex = DECK.findIndex(itm => itm === selectedCard)
         setSelectedCardIndex(cardIndex)
-
-        if (cardIndex > 15 && cardIndex < 19) {
-            setCalcType(CalculusTypes.SINGLE_DIGITS)
-            setFromTop(true)
-        }
-
-        // if(cardIndex > 15 && cardIndex < 19)
     }, [selectedCard])
 
+
+    /**
+     * setta tipo di calcolo e se da sopra o da sotto il mazzo
+     */
     useEffect(() => {
-        const {
-            minutes,
-            seconds,
-            decisec
-        } = destructTime(time)
+        if (!running) {
+            console.log('executing checks')
+            const {
+                minutes,
+                seconds,
+            } = destructTime(time)
 
-        const singleDigitSumMinSec = parseInt(minutes[0]) + parseInt(minutes[1])
-            + parseInt(seconds[0]) + parseInt(seconds[1])
+            const singleDigitSumMinSec = parseInt(minutes[0]) + parseInt(minutes[1])
+                + parseInt(seconds[0]) + parseInt(seconds[1])
+            console.log('singleDigitSumMinSec', singleDigitSumMinSec)
+
+            const cardIndexFromBottom = 52 - selectedCardIndex
+
+            /**
+             * single digits from top
+             */
+            if (
+                (selectedCardIndex < (singleDigitSumMinSec + 18) &&
+                    selectedCardIndex > singleDigitSumMinSec)
+            ) {
+                const singleDigitDiff = selectedCardIndex - singleDigitSumMinSec
+                console.log('----- SINGLES FROM TOP ------')
+                console.log('position from top', selectedCardIndex)
+                console.log('singleDigitDiff from top!', singleDigitDiff)
+                console.log('------------------------')
+                setCalcType(CalculusTypes.SINGLE_DIGITS)
+                setFromTop(true)
+                setOutMs(msForSingleDigits(singleDigitDiff))
+                return
+
+            }
+            /**
+             * Single digits from bottom
+             */
+            if (
+                (cardIndexFromBottom < (singleDigitSumMinSec + 18) &&
+                cardIndexFromBottom > singleDigitSumMinSec)
+            ) {
+                // const fromBottom = ((52 - selectedCardIndex) < (singleDigitSumMinSec + 18) && (52 - selectedCardIndex)  > singleDigitSumMinSec)
+                const singleDigitDiff = cardIndexFromBottom - singleDigitSumMinSec
+                console.log('----- SINGLES FROM BOTTOM ------')
+                console.log('Position from bottom', cardIndexFromBottom)
+                console.log('singleDigitDiff from bottom!', singleDigitDiff)
+                console.log('------------------------')
+                setCalcType(CalculusTypes.SINGLE_DIGITS)
+                setFromTop(false)
+                setOutMs(msForSingleDigits(singleDigitDiff))
+                return
+            }
 
 
 
-        const singleDigitDiff = selectedCardIndex - singleDigitSumMinSec
+            /**
+             * double digits sum from top
+             */
 
-        if (Math.abs(singleDigitDiff) < 52) {
-            setCalcType(CalculusTypes.SINGLE_DIGITS)
-            setFromTop(singleDigitDiff < 26)
-            return
+            const {
+                minutesInt,
+                secondsInt
+            } = destructTimeInt(time)
+
+
+            const twoDigitSumMinSec = minutesInt + secondsInt
+
+
+
+            /**
+             * double digits sum from top
+             */
+
+
+            if (selectedCardIndex < twoDigitSumMinSec + 99 &&
+                selectedCardIndex > twoDigitSumMinSec) {
+                const twoDigitDiff = selectedCardIndex - twoDigitSumMinSec
+                setCalcType(CalculusTypes.DOUBLE_DIGITS)
+                setFromTop(true)
+                setOutMs(numPad2(twoDigitDiff))
+
+                console.log('----- DOUBLES FROM TOP ------')
+                console.log('Position from bottom', selectedCardIndex)
+                console.log('twoDigitDiff from bottom!', twoDigitDiff)
+                console.log('------------------------')
+
+                return
+            }
+
+
+            if (cardIndexFromBottom < twoDigitSumMinSec + 99 &&
+                cardIndexFromBottom > twoDigitSumMinSec) {
+                const twoDigitDiff = cardIndexFromBottom - twoDigitSumMinSec
+                setCalcType(CalculusTypes.DOUBLE_DIGITS)
+                setFromTop(false)
+                setOutMs(numPad2(twoDigitDiff))
+                console.log('----- DOUBLES FROM BOTTOM ------')
+                console.log('Position from bottom', selectedCardIndex)
+                console.log('twoDigitDiff from bottom!', twoDigitDiff)
+                console.log('------------------------')
+
+                return
+            }
+
+            // const twoDigitDiff = selectedCardIndex - twoDigitSumMinSec
+            // console.log('twoDigitDiff', twoDigitDiff)
+            // if (Math.abs(twoDigitDiff) < 52) {
+            //     setCalcType(CalculusTypes.DOUBLE_DIGITS)
+            //     const isFromTop = twoDigitDiff < 26 && twoDigitDiff >= 0
+            //     setFromTop(isFromTop)
+            //     setOutMs(numPad2(isFromTop ? twoDigitDiff : 52 - twoDigitDiff))
+            //     return
+            // }
+
+            console.log('Only selectedCardIndex', selectedCardIndex)
+            setCalcType(CalculusTypes.ONLY_MS)
+            const isFromTop = selectedCardIndex < 26 && selectedCardIndex >= 0
+            setFromTop(isFromTop)
+            setOutMs(numPad2(isFromTop ? selectedCardIndex : 52 - selectedCardIndex))
         }
 
-        const {
-            minutesInt,
-            secondsInt
-        } = destructTimeInt(time)
-
-        const twoDigitSumMinSec = minutesInt + secondsInt
-        const twoDigitDiff = selectedCardIndex - twoDigitSumMinSec
-
-        if (Math.abs(twoDigitDiff) < 52) {
-            setCalcType(CalculusTypes.DOUBLE_DIGITS)
-            setFromTop(twoDigitDiff < 26)
-
-            return
-        }
-
-        setCalcType(CalculusTypes.ONLY_MS)
-        setFromTop(selectedCardIndex < 26)
-
-
-    }, [time, selectedCardIndex])
-
-
-    /**
-     * When this func return true the stopwatch stop itself
-     * @returns 
-     */
-    const checkTime = (): boolean => {
-        const {
-            minutes,
-            seconds,
-            decisec
-        } = destructTime(time)
-
-
-        const summ = parseInt(minutes[0]) + parseInt(minutes[1])
-            + parseInt(seconds[0]) + parseInt(seconds[1])
-            + parseInt(decisec[0]) + parseInt(decisec[1])
-
-        const twoDigitSum = parseInt(minutes) + parseInt(seconds) + parseInt(decisec)
-
-
-
-        console.log('--------------')
-        console.log('summ', summ)
-        console.log('twoDigitSum', twoDigitSum)
-        console.log('fromTop', fromTop)
-        console.log('--------------')
-        console.log('')
-
-        return summ === selectedCardIndex //fromTop ? twoDigitSum === selectedCardIndex.current : summ === selectedCardIndex.current
-    }
-
-    /**
-     * this func returns the millisecods to show
-     * @returns 
-     */
-    const msToCardIndex = () => {
-
-        const {
-            minutes,
-            seconds,
-            decisec
-        } = destructTime(time)
-
-        const summ =
-            parseInt(minutes[0]) + parseInt(minutes[1])
-            + parseInt(seconds[0]) + parseInt(seconds[1])
-        // + parseInt(decisec[0]) + parseInt(decisec[1]) 
-
-        // console.log(`${minutes} : ${seconds} : ${decisec}`)
-        // console.log('summ', summ)
-        // console.log('18 - summ', 18 - summ)
-        // console.log(selectedCardIndex.current, 'selectedCardIndex.current')
-
-        const diff = (selectedCardIndex + 1) - summ
-
-        console.log('selectedCardIndex.current - summ', diff)
-        // console.log('diff', diff)
-        // console.log('Out msto18',
-        // [ 
-        //     Math.floor(Math.abs(diff)*0.5) * Math.sign(diff), 
-        //     Math.ceil(Math.abs(diff)*0.5) * Math.sign(diff)
-        // ])
-
-        let divider = Math.random()
-
-        let output = [
-            Math.floor(Math.abs(diff) * divider) * Math.sign(diff),
-            Math.ceil(Math.abs(diff) * (1 - divider)) * Math.sign(diff)
-        ]
-
-        console.log('output', output)
-        let count = 0
-
-        while ((output[0] >= 10 || output[1] >= 10) && count < 1000) {
-            count++
-
-            divider = Math.random()
-
-            output = [
-                Math.floor(Math.abs(diff) * divider) * Math.sign(diff),
-                Math.ceil(Math.abs(diff) * (1 - divider)) * Math.sign(diff)
-            ]
-
-        }
-
-        /**
-         * nel caso in cui non si riesce a distribuire il dif su 2 digit
-         * ritorno come numero da forzare il diff numerico delle cifre prese a coppie index - (mm + ss)
-         **/
-
-        if (output[0] >= 10 || output[1] >= 10) {
-            const summ = parseInt(minutes) + parseInt(seconds)
-            const diff = (selectedCardIndex + 1) - summ
-            twoDigitSum.current = true
-            // twoDigitOnly
-            return [diff.toString()[0], diff.toString()[1]]
-        } else {
-            twoDigitSum.current = false
-            return output
-        }
-    }
+    }, [time, selectedCardIndex, running])
 
     return {
-        checkTime,
-        msToCardIndex,
         fromTop,
         selectedCardIndex,
-        twoDigitSum
+        outMs,
+        calcType
     }
 }

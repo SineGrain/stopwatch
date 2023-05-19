@@ -1,0 +1,146 @@
+
+
+
+:root {
+  --spacing: 8px;
+  --gridPad: 16px;
+  --buttonColor: rgb(239, 239, 239);
+  --buttonSize: 100px;
+}
+@mixin innerBorder {
+  outline: 3px var(--buttonColor) solid;
+  width: calc(var(--buttonSize) - 6px);
+  height: calc(var(--buttonSize) - 6px);
+  border: 4px black solid;
+}
+
+.App {
+  background-color: black;
+  color: white;
+  min-height: calc(100vh - var(--spacing)*4);
+  padding: calc(var(--spacing)*2);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  width: calc(100% - var(--spacing)*4);
+}
+
+.stopwatch {
+  width: 100%;
+  /* max-width: 300px; */
+  /* border: solid white 2px; */
+  padding: var(--spacing);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.stopwatch .buttons {
+  display: flex;
+
+  justify-content: space-around;
+  width: 100%;
+  align-items: center;
+}
+
+
+.stopwatch {
+  .buttons {
+    button {
+      padding: 30px;
+      border-radius: 100%;
+      width: var(--buttonSize);
+      height: var(--buttonSize);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: none;
+      background-color: var(--buttonColor);
+      
+      &.start { 
+      }
+      &.stop {
+        padding: unset;
+        @include innerBorder();
+
+        .stopButton {
+
+          width: 28px; //calc(var(--buttonSize) * 0.2);
+          height: 28px; //calc(var(--buttonSize) * 0.2);
+          border-radius: 2px;
+          background-color: black;
+        }
+      }
+    }
+  }
+}
+
+.stopwatch .buttons button img {
+  width: 100%;
+  object-fit: contain;
+}
+
+.stopwatch .buttons button.stop img {
+  width: 190%;
+}
+
+.stopwatch .buttons button.start img {
+  width: 100%;
+  margin-left: var(--spacing);
+}
+
+.stopwatch .buttons button.reset img {
+  width: 145%;
+  margin-bottom: 5px;
+}
+.stopwatch .numbers {
+  font-size: 20.5vw;
+  width: 3.9em;
+  text-align: left;
+}
+
+.stopwatch.from_bottom .buttons button.start {
+  @include innerBorder();
+}
+
+// .stopwatch.calc_double_digits .buttons button {
+//   background-color: blue;
+// }
+
+// .stopwatch.calc_only_ms .buttons button {
+//   background-color: green;
+// }
+
+.control {
+  // width: calc(100% - var(--spacing)*4);
+  width: 100%;
+
+  .buttons {
+    .values, .suite {
+
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--gridPad);
+      row-gap: calc(var(--gridPad)*2);
+      justify-content: center;
+      ul {
+        border-radius: 13px;
+        color: black;
+        text-align: center;
+        width: calc(25% - var(--spacing)*4 - var(--gridPad));
+        padding: 24px 16px;
+        background-color: rgb(228, 228, 228);
+        font-size: 2rem;
+        margin: 0;
+      }
+    }
+    .suite {
+      margin-top: calc(var(--spacing)*8) ;
+      ul {
+        width: calc(25% - var(--spacing)*4 - var(--gridPad));
+      }
+    }
+  }
+}
