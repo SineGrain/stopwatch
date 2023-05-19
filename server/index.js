@@ -4,18 +4,19 @@ const express = require('express');
 const app = express();
 const DECK = require("../shared/constants/deck")
 const dev = require('./dev')
-
+const http = require('http')
 const DEV = false;
-const PORT = DEV ? 4000 : 443
+const PORT = DEV ? 4000 : (process.env.PORT || 8080)
 
-const server = https
+const server = DEV ? https
   .createServer(
     DEV ? {
       key: fs.readFileSync("./server.key"),
       cert: fs.readFileSync("./server.cert"),
     }: {},
     app
-  );
+  ): http.createServer();
+
 const { Server } = require("socket.io");
 const io = new Server(server, {
     cors: {
@@ -39,7 +40,7 @@ io.on('connection', (socket) => {
 
 
 server.listen(PORT, () => {
-    console.log(`listening on *:${PORT}`);
+    console.log(`listening on ${PORT}`);
 });
 
 if(DEV){
